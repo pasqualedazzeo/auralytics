@@ -1,46 +1,159 @@
-# Getting Started with Create React App
+# Transcription App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern web application for live speech transcription with speaker diarization and AI-powered analysis.
 
-## Available Scripts
+![Transcription App Screenshot](https://via.placeholder.com/800x450.png?text=Transcription+App)
 
-In the project directory, you can run:
+## Overview
 
-### `npm start`
+Transcription App is a React-based web application that allows users to record and transcribe conversations in real-time. The application features speaker diarization to distinguish between different speakers, and provides AI-powered analysis tools to extract insights from transcripts.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Features
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Authentication
+- User registration and login system
+- Google authentication integration (mocked for demo purposes)
+- Protected routes for authenticated users
 
-### `npm test`
+### Live Transcription
+- Real-time speech-to-text conversion using Web Speech API
+- Automatic speaker diarization
+- Start/stop recording functionality
+- Transcript saving with custom titles
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Transcript Management
+- View all saved transcripts
+- Detailed transcript view with speaker segments
+- Transcript storage using browser's localStorage
 
-### `npm run build`
+### AI Analysis
+- Transcript summarization
+- Key points extraction
+- Sentiment analysis with speaker breakdown
+- Topic identification
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### User Interface
+- Clean, responsive design using Tailwind CSS
+- User dashboard with statistics and recent transcripts
+- Intuitive navigation between different sections
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Technologies Used
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **Frontend**: React, TypeScript, React Router
+- **Styling**: Tailwind CSS
+- **Speech Recognition**: Web Speech API
+- **State Management**: React Context API
+- **Storage**: localStorage
+- **Authentication**: Custom mock implementation (for demo)
+- **AI Analysis**: Mock implementations (for demo)
 
-### `npm run eject`
+## Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Prerequisites
+- Node.js (v14.0.0 or later)
+- npm (v6.0.0 or later)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/transcription-app.git
+   cd transcription-app
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
-## Learn More
+4. Open your browser and navigate to:
+   ```
+   http://localhost:3000
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Usage Guide
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Authentication
+- Register a new account or use the mock login with any email/password combination
+- Alternatively, click "Sign in with Google" for mock Google authentication
+
+### Recording a Transcription
+1. Navigate to the "New Transcription" page
+2. Click the "Start Recording" button to begin transcription
+3. Speak clearly into your microphone
+4. Click "Stop Recording" when finished
+5. Enter a title for your transcript
+6. Click "Save Transcript" to store it
+
+### Viewing Transcripts
+1. Navigate to the "Transcripts" page
+2. Select a transcript from the list to view its details
+3. Use the AI analysis tabs to generate insights:
+   - Summary: Get a concise summary of the transcript
+   - Key Points: Extract important points from the conversation
+   - Sentiment: Analyze the emotional tone of the conversation
+   - Topics: Identify main topics discussed
+
+## Project Structure
+
+```
+transcription-app/
+├── public/                  # Static files
+├── src/                     # Source code
+│   ├── components/          # React components
+│   │   ├── auth/            # Authentication components
+│   │   ├── shared/          # Shared UI components
+│   │   └── transcription/   # Transcription-related components
+│   ├── contexts/            # React contexts
+│   ├── hooks/               # Custom React hooks
+│   ├── pages/               # Page components
+│   ├── services/            # Service modules
+│   ├── types/               # TypeScript type definitions
+│   ├── utils/               # Utility functions
+│   ├── App.tsx              # Main App component
+│   └── index.tsx            # Application entry point
+└── package.json             # Project dependencies and scripts
+```
+
+## Browser Compatibility
+
+The application uses the Web Speech API, which has varying levels of support across browsers:
+- Chrome: Full support
+- Edge: Full support
+- Firefox: Partial support
+- Safari: Partial support
+
+For the best experience, use Chrome or Edge.
+
+## Limitations
+
+- **Speech Recognition**: The Web Speech API may not work in all browsers and requires an internet connection
+- **Speaker Diarization**: The current implementation uses a simplified algorithm and may not be as accurate as professional solutions
+- **Storage**: Transcripts are stored in localStorage, which has limited capacity and is cleared when browser data is cleared
+- **Authentication**: The current implementation uses mock authentication and is not secure for production use
+- **AI Analysis**: The current implementation uses mock data and does not perform actual AI analysis
+
+## Future Improvements
+
+- Implement a backend server for secure authentication and data storage
+- Connect to professional speech-to-text APIs for improved accuracy
+- Integrate with real AI services for transcript analysis
+- Add export functionality for transcripts (PDF, Word, etc.)
+- Implement real-time collaboration features
+- Add support for multiple languages
+- Improve accessibility features
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- [Create React App](https://create-react-app.dev/) for the project setup
+- [Tailwind CSS](https://tailwindcss.com/) for the styling framework
+- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) for speech recognition capabilities
+- [React Router](https://reactrouter.com/) for routing
