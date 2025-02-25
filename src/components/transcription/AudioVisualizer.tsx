@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 interface AudioVisualizerProps {
   isRecording: boolean;
-  audioContext?: AudioContext | null;
-  analyser?: AnalyserNode | null;
+  audioContext: AudioContext | null | undefined;
+  analyser: AnalyserNode | null | undefined;
 }
 
 const AudioVisualizer: React.FC<AudioVisualizerProps> = ({ 
@@ -12,75 +12,56 @@ const AudioVisualizer: React.FC<AudioVisualizerProps> = ({
   analyser 
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animationRef = useRef<number | undefined>(undefined);
-
+  
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !isRecording || !audioContext || !analyser) return;
-
-    const canvasCtx = canvas.getContext('2d') as CanvasRenderingContext2D;
-    if (!canvasCtx) return;
-
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
+    if (!canvas || !isRecording || !analyser) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    const dataArray = new Uint8Array(analyser instanceof AnalyserNode ? analyser.frequencyBinCount : 128);
+    
     const draw = () => {
       if (!isRecording) return;
       
-      animationRef.current = requestAnimationFrame(draw);
+      requestAnimationFrame(draw);
       
-      analyser.getByteTimeDomainData(dataArray);
-      
-      canvasCtx.fillStyle = 'rgb(249, 250, 251)'; // bg-gray-50
-      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      canvasCtx.lineWidth = 2;
-      canvasCtx.strokeStyle = 'rgb(79, 70, 229)'; // indigo-600
-      
-      canvasCtx.beginPath();
-      
-      const sliceWidth = canvas.width / bufferLength;
-      let x = 0;
-      
-      for (let i = 0; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0;
-        const y = v * (canvas.height / 2);
+      if (analyser) {
+        analyser.getByteFrequencyData(dataArray);
         
-        if (i === 0) {
-          canvasCtx.moveTo(x, y);
-        } else {
-          canvasCtx.lineTo(x, y);
+        ctx.fillStyle = 'rgb(20, 20, 20)';
+        ctx.fillRect(0, 0, width, height);
+        
+        const barWidth = (width / dataArray.length) * 2.5;
+        let barHeight;
+        let x = 0;
+        
+        for (let i = 0; i < dataArray.length; i++) {
+          barHeight = dataArray[i] / 2;
+          
+          ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+          ctx.fillRect(x, height - barHeight / 2, barWidth, barHeight);
+          
+          x += barWidth + 1;
         }
-        
-        x += sliceWidth;
       }
-      
-      canvasCtx.lineTo(canvas.width, canvas.height / 2);
-      canvasCtx.stroke();
     };
     
     draw();
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isRecording, audioContext, analyser]);
-
+  }, [isRecording, analyser]);
+  
   return (
-    <div className="bg-gray-50 rounded-lg p-2 mb-4 relative">
+    <div className="w-full h-32 bg-neutral-100 rounded-lg overflow-hidden mb-6">
       <canvas 
         ref={canvasRef} 
-        className="w-full h-16 rounded"
-        width={1000}
-        height={100}
+        width={800} 
+        height={128} 
+        className="w-full h-full"
       />
-      {!isRecording && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="text-sm text-gray-500">Audio visualization will appear here when recording</p>
-        </div>
-      )}
     </div>
   );
 };

@@ -22,6 +22,7 @@ export enum TranscriptionStatus {
   REQUESTING_PERMISSION = 'requesting_permission',
   PERMISSION_DENIED = 'permission_denied',
   LISTENING = 'listening',
+  PROCESSING = 'processing',
   ERROR = 'error',
   UNSUPPORTED = 'unsupported'
 }
@@ -78,7 +79,7 @@ export class TranscriptionService {
   // Status tracking
   private status: TranscriptionStatus = TranscriptionStatus.IDLE;
   private error: TranscriptionError | null = null;
-  private onStatusChange: ((status: TranscriptionStatus, error?: TranscriptionError) => void) | null = null;
+  public _onStatusChange: ((status: TranscriptionStatus, error?: TranscriptionError) => void) | null = null;
 
   constructor() {
     this.initRecognition();
@@ -107,8 +108,8 @@ export class TranscriptionService {
     this.status = status;
     this.error = error || null;
     
-    if (this.onStatusChange) {
-      this.onStatusChange(status, error);
+    if (this._onStatusChange) {
+      this._onStatusChange(status, error);
     }
     
     console.log(`Transcription status: ${status}`, error ? `Error: ${error.message}` : '');
@@ -168,10 +169,15 @@ export class TranscriptionService {
       console.log('Initializing speech recognition...');
       if (this.recognition) {
         console.log('Cleaning up existing recognition instance...');
+        // Properly clean up existing instance
         this.recognition.onend = null;
         this.recognition.onerror = null;
         this.recognition.onresult = null;
-        this.recognition.abort();
+        try {
+          this.recognition.abort();
+        } catch (e) {
+          console.log('Error aborting existing recognition:', e);
+        }
         this.recognition = null;
       }
 
@@ -194,23 +200,12 @@ export class TranscriptionService {
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
         this.recognition.lang = 'en-US';
+        this.recognition.maxAlternatives = 1;
 
         // Bind event handlers
-        this.recognition.onresult = (event) => {
-          console.log('Recognition result received:', event);
-          this.handleRecognitionResult(event);
-        };
-        
-        this.recognition.onerror = (event) => {
-          console.error('Recognition error:', event.error);
-          this.handleRecognitionError(event);
-        };
-        
-        this.recognition.onend = () => {
-          console.log('Recognition ended');
-          this.handleRecognitionEnd();
-        };
-        
+        this.recognition.onresult = this.handleRecognitionResult.bind(this);
+        this.recognition.onerror = this.handleRecognitionError.bind(this);
+        this.recognition.onend = this.handleRecognitionEnd.bind(this);
         this.recognition.onstart = () => {
           console.log('Recognition started');
           this.reconnectionAttempts = 0;
@@ -316,9 +311,23 @@ export class TranscriptionService {
   }
 
   private handleRecognitionEnd() {
-    if (this.isListening && this.reconnectionAttempts < this.MAX_RECONNECTION_ATTEMPTS) {
-      this.restartRecognition();
+    console.log('Recognition ended, isListening:', this.isListening);
+    
+    // Only attempt to restart if we're still supposed to be listening
+    if (this.isListening) {
+      if (this.reconnectionAttempts < this.MAX_RECONNECTION_ATTEMPTS) {
+        console.log(`Attempting to restart recognition (attempt ${this.reconnectionAttempts + 1}/${this.MAX_RECONNECTION_ATTEMPTS})`);
+        this.restartRecognition();
+      } else {
+        console.log('Max reconnection attempts reached, stopping transcription');
+        this.isListening = false;
+        this.setStatus(TranscriptionStatus.ERROR, {
+          code: 'max_reconnections',
+          message: 'Maximum reconnection attempts reached'
+        });
+      }
     } else {
+      console.log('Recognition ended normally, not restarting');
       this.setStatus(TranscriptionStatus.IDLE);
     }
   }
@@ -329,9 +338,21 @@ export class TranscriptionService {
     }
 
     this.restartTimeout = setTimeout(() => {
-      if (this.isListening && this.recognition) {
+      if (this.isListening) {
         try {
-          this.recognition.start();
+          console.log('Restarting recognition...');
+          if (this.recognition) {
+            this.recognition.start();
+            this.reconnectionAttempts++;
+          } else {
+            console.error('Recognition object is null during restart');
+            this.initRecognition().then(success => {
+              if (success && this.recognition && this.isListening) {
+                this.recognition.start();
+                this.reconnectionAttempts++;
+              }
+            });
+          }
         } catch (error) {
           console.error('Error restarting recognition:', error);
           this.setStatus(TranscriptionStatus.ERROR, {
@@ -346,7 +367,7 @@ export class TranscriptionService {
 
   // Register status change listener
   public onStatus(callback: (status: TranscriptionStatus, error?: TranscriptionError) => void): void {
-    this.onStatusChange = callback;
+    this._onStatusChange = callback;
   }
 
   // Start transcription
@@ -354,16 +375,16 @@ export class TranscriptionService {
     try {
       console.log('Starting transcription service...');
       if (this.isListening) {
-        console.log('Already listening, skipping start');
-        return true;
+        console.log('Already listening, stopping current session first');
+        this.stop();
       }
 
-      if (!this.recognition) {
-        console.log('Recognition not initialized, initializing...');
-        const initSuccess = await this.initRecognition();
-        if (!initSuccess) {
-          return false;
-        }
+      // Always re-initialize recognition to ensure a clean state
+      console.log('Initializing recognition...');
+      const initSuccess = await this.initRecognition();
+      if (!initSuccess) {
+        console.error('Failed to initialize recognition');
+        return false;
       }
 
       this.setStatus(TranscriptionStatus.REQUESTING_PERMISSION);
@@ -384,9 +405,10 @@ export class TranscriptionService {
       console.log('Starting recognition...');
       if (this.recognition) {
         this.recognition.start();
+        return true;
+      } else {
+        throw new Error('Recognition not initialized');
       }
-
-      return true;
     } catch (error) {
       console.error('Error starting recognition:', error);
       this.setStatus(TranscriptionStatus.ERROR, {
@@ -413,14 +435,16 @@ export class TranscriptionService {
 
     // Stop recognition
     if (this.recognition) {
-      // Remove all event listeners
+      // Remove all event listeners before stopping
       this.recognition.onresult = null;
       this.recognition.onerror = null;
       this.recognition.onend = null;
       this.recognition.onstart = null;
 
       try {
-        this.recognition.stop();
+        this.recognition.abort(); // Use abort() instead of stop() to immediately terminate
+        // Re-initialize recognition to ensure a clean state for next use
+        this.initRecognition();
       } catch (error) {
         console.error('Error stopping recognition:', error);
       }
