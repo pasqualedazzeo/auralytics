@@ -66,6 +66,31 @@ export const useTranscription = () => {
     }
   }, []);
   
+  // Add this function to your useTranscription hook
+  const ensureAudioVisualization = useCallback(async () => {
+    if (!transcriptionServiceRef.current) return;
+    
+    // Get fresh audio visualization data
+    const { audioContext, analyser } = transcriptionServiceRef.current.getAudioVisualizationData();
+    
+    // If we have an audio context but it's not running, try to resume it
+    if (audioContext && audioContext.state !== 'running') {
+      try {
+        await audioContext.resume();
+        console.log('Audio context resumed successfully');
+      } catch (err) {
+        console.error('Failed to resume audio context:', err);
+      }
+    }
+    
+    // Update refs with the latest values
+    audioContextRef.current = audioContext;
+    analyserRef.current = analyser;
+    
+    // Force a re-render to update the visualizer
+    setIsRecording(prev => prev);
+  }, []);
+
   // Start recording
   const startRecording = useCallback(async () => {
     if (!transcriptionServiceRef.current) return;
@@ -87,6 +112,9 @@ export const useTranscription = () => {
       if (success) {
         setIsRecording(true);
         startTimer();
+        
+        // Ensure audio visualization is working
+        await ensureAudioVisualization();
       }
     } catch (err) {
       console.error('Error starting recording:', err);
@@ -96,7 +124,7 @@ export const useTranscription = () => {
         message: 'Failed to access microphone. Please check permissions.'
       });
     }
-  }, [startTimer]);
+  }, [startTimer, ensureAudioVisualization]);
   
   // Stop recording
   const stopRecording = useCallback(() => {
