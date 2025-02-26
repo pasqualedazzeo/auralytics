@@ -140,6 +140,23 @@ export class AIService {
     // Return a random set of key points
     return keyPointSets[Math.floor(Math.random() * keyPointSets.length)];
   }
+
+  // Add this method to the AIService class
+  public async analyzeTranscript(transcript: Transcript, analysisType: string): Promise<AIAnalysisResult> {
+    // Route to the appropriate analysis method based on the type
+    switch (analysisType) {
+      case 'summary':
+        return this.summarize(transcript);
+      case 'keyPoints':
+        return this.extractKeyPoints(transcript);
+      case 'sentiment':
+        return this.analyzeSentiment(transcript);
+      case 'topics':
+        return this.identifyTopics(transcript);
+      default:
+        throw new Error(`Unknown analysis type: ${analysisType}`);
+    }
+  }
 }
 
 // Create a singleton instance

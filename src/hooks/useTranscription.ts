@@ -148,7 +148,7 @@ export const useTranscription = () => {
   }, [stopTimer]);
   
   // Save transcript
-  const saveTranscript = useCallback((title: string): Transcript => {
+  const saveTranscript = useCallback(async (title: string): Promise<Transcript> => {
     if (!transcriptionServiceRef.current) {
       throw new Error('Transcription service not initialized');
     }
@@ -165,7 +165,9 @@ export const useTranscription = () => {
     // Here you would typically save to a database or storage service
     console.log('Saving transcript:', savedTranscript);
     
-    return savedTranscript;
+    // Simulate an async operation if needed
+    // In a real app, this would be an API call or database operation
+    return Promise.resolve(savedTranscript);
   }, [transcript, recordingTime]);
   
   // Reset transcription

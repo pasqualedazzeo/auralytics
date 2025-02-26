@@ -59,11 +59,27 @@ const TranscriptionPage: React.FC = () => {
   useEffect(() => {
     if (transcript.length > 0 && status === Status.IDLE) {
       setShowSaveForm(true);
+      // Reset any potential issues with the title input
+      setTitle('New Transcript'); // Set a default title that can be edited
     } else {
       setShowSaveForm(false);
     }
   }, [transcript, status]);
-  
+
+  // Focus on title input when save form appears
+  useEffect(() => {
+    if (showSaveForm) {
+      // Short timeout to ensure the DOM has updated
+      const timer = setTimeout(() => {
+        const titleInput = document.getElementById('transcript-title');
+        if (titleInput) {
+          titleInput.focus();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveForm]);
+
   const handleSaveTranscript = async () => {
     if (!title.trim()) return;
     
@@ -168,16 +184,19 @@ const TranscriptionPage: React.FC = () => {
           )}
         </div>
 
-        {/* Save transcript section */}
+        {/* Save transcript section - Alternative non-modal approach */}
         {showSaveForm && (
-          <Card className="mt-8">
-            <div className="p-6">
+          <Card className="mt-8 relative z-50 pointer-events-auto">
+            <div 
+              className="p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3 className="text-lg font-medium text-neutral-900">Save Transcript</h3>
               <div className="mt-4">
                 <label htmlFor="transcript-title" className="block text-sm font-medium text-gray-700">
                   Transcript Title
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative">
                   <input
                     type="text"
                     name="transcript-title"
@@ -186,20 +205,30 @@ const TranscriptionPage: React.FC = () => {
                     onChange={(e) => setTitle(e.target.value)}
                     className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                     placeholder="Enter a title for this transcript"
+                    autoFocus
+                    style={{ pointerEvents: 'auto' }}
                   />
                 </div>
               </div>
               <div className="mt-4 flex justify-between">
                 <Button
-                  onClick={handleSaveTranscript}
-                  disabled={isSaving}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSaveTranscript();
+                  }}
+                  disabled={isSaving || !title.trim()}
                   className="!bg-green-600 hover:!bg-green-700"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   {isSaving ? 'Saving...' : 'Save Transcript'}
                 </Button>
                 <Button
-                  onClick={handleStartNewTranscription}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartNewTranscription();
+                  }}
                   className="!bg-gray-200 hover:!bg-gray-300"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   Start New Transcription
                 </Button>

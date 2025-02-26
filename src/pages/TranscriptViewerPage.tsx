@@ -49,41 +49,24 @@ const TranscriptViewerPage: React.FC = () => {
   };
 
   // Handle AI analysis
-  const handleAnalyze = async (type: 'summary' | 'keyPoints' | 'sentiment' | 'topics') => {
+  const handleAnalyze = async () => {
     if (!selectedTranscript) return;
     
     setIsAnalyzing(true);
-    setActiveAiTab(type);
-    
     try {
-      let result: AIAnalysisResult;
+      const result = await aiService.analyzeTranscript(selectedTranscript, activeAiTab);
       
-      // Check if we already have this analysis
-      const existingResult = aiResults.find(r => r.type === type);
-      if (existingResult) {
-        // Use existing result
-        setIsAnalyzing(false);
-        return;
-      }
-      
-      // Perform the requested analysis
-      switch (type) {
-        case 'summary':
-          result = await aiService.summarize(selectedTranscript);
-          break;
-        case 'keyPoints':
-          result = await aiService.extractKeyPoints(selectedTranscript);
-          break;
-        case 'sentiment':
-          result = await aiService.analyzeSentiment(selectedTranscript);
-          break;
-        case 'topics':
-          result = await aiService.identifyTopics(selectedTranscript);
-          break;
-      }
-      
-      // Add result to state
-      setAiResults(prev => [...prev, result]);
+      // Update or add the result
+      setAiResults(prev => {
+        const existingIndex = prev.findIndex(r => r.type === activeAiTab);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = result;
+          return updated;
+        } else {
+          return [...prev, result];
+        }
+      });
     } catch (error) {
       console.error('Error analyzing transcript:', error);
     } finally {
@@ -91,19 +74,19 @@ const TranscriptViewerPage: React.FC = () => {
     }
   };
 
-  // Get current AI result
+  // Get the current AI result based on active tab
   const getCurrentAiResult = () => {
     return aiResults.find(result => result.type === activeAiTab);
   };
 
-  // Render AI result content
+  // Render AI result content based on type
   const renderAiResultContent = () => {
     const result = getCurrentAiResult();
     
     if (isAnalyzing) {
       return (
-        <div className="flex items-center justify-center py-8">
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div className="flex items-center justify-center py-8 space-x-2">
+          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -120,90 +103,91 @@ const TranscriptViewerPage: React.FC = () => {
       );
     }
     
+    // Render based on result type
     switch (result.type) {
       case 'summary':
         return (
-          <div className="bg-white p-4 rounded-lg shadow">
+          <div className="prose max-w-none">
             <p className="text-gray-700">{result.content as string}</p>
           </div>
         );
       
       case 'keyPoints':
         return (
-          <ul className="bg-white p-4 rounded-lg shadow space-y-2">
+          <ul className="space-y-2 list-disc pl-5">
             {(result.content as string[]).map((point, index) => (
-              <li key={index} className="flex items-start">
-                <span className="flex-shrink-0 h-5 w-5 text-indigo-500 mr-2">•</span>
-                <span>{point}</span>
-              </li>
+              <li key={index} className="text-gray-700">{point}</li>
             ))}
           </ul>
         );
       
       case 'sentiment':
-        const sentiment = result.content as Record<string, any>;
+        const sentimentData = result.content as Record<string, any>;
         return (
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="mb-4">
-              <h4 className="text-sm font-medium text-gray-500">Overall Sentiment</h4>
-              <p className="text-lg font-semibold text-gray-900 capitalize">{sentiment.overall}</p>
-              <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className="bg-indigo-600 h-2.5 rounded-full" 
-                  style={{ width: `${sentiment.score * 100}%` }}
-                ></div>
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-2">Overall Sentiment</h4>
+              <div className="flex items-center space-x-2">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  sentimentData.overall === 'positive' ? 'bg-green-100 text-green-800' :
+                  sentimentData.overall === 'negative' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {sentimentData.overall.charAt(0).toUpperCase() + sentimentData.overall.slice(1)}
+                </span>
+                <span className="text-sm text-gray-500">Score: {sentimentData.score.toFixed(2)}</span>
               </div>
             </div>
             
-            <div className="mb-4">
-              <h4 className="text-sm font-medium text-gray-500">Sentiment Breakdown</h4>
-              <div className="mt-2 space-y-2">
-                <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span>Positive</span>
-                    <span>{Math.round(sentiment.breakdown.positive * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-2">Sentiment Breakdown</h4>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <div className="w-24 text-sm text-gray-500">Positive:</div>
+                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
-                      className="bg-green-500 h-1.5 rounded-full" 
-                      style={{ width: `${sentiment.breakdown.positive * 100}%` }}
+                      className="h-full bg-green-500 rounded-full" 
+                      style={{ width: `${sentimentData.breakdown.positive * 100}%` }}
                     ></div>
                   </div>
+                  <div className="ml-2 text-sm text-gray-500">{(sentimentData.breakdown.positive * 100).toFixed(0)}%</div>
                 </div>
-                <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span>Neutral</span>
-                    <span>{Math.round(sentiment.breakdown.neutral * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className="flex items-center">
+                  <div className="w-24 text-sm text-gray-500">Neutral:</div>
+                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
-                      className="bg-gray-500 h-1.5 rounded-full" 
-                      style={{ width: `${sentiment.breakdown.neutral * 100}%` }}
+                      className="h-full bg-gray-500 rounded-full" 
+                      style={{ width: `${sentimentData.breakdown.neutral * 100}%` }}
                     ></div>
                   </div>
+                  <div className="ml-2 text-sm text-gray-500">{(sentimentData.breakdown.neutral * 100).toFixed(0)}%</div>
                 </div>
-                <div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span>Negative</span>
-                    <span>{Math.round(sentiment.breakdown.negative * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                <div className="flex items-center">
+                  <div className="w-24 text-sm text-gray-500">Negative:</div>
+                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div 
-                      className="bg-red-500 h-1.5 rounded-full" 
-                      style={{ width: `${sentiment.breakdown.negative * 100}%` }}
+                      className="h-full bg-red-500 rounded-full" 
+                      style={{ width: `${sentimentData.breakdown.negative * 100}%` }}
                     ></div>
                   </div>
+                  <div className="ml-2 text-sm text-gray-500">{(sentimentData.breakdown.negative * 100).toFixed(0)}%</div>
                 </div>
               </div>
             </div>
             
-            <div>
-              <h4 className="text-sm font-medium text-gray-500">Speaker Sentiment</h4>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {Object.entries(sentiment.perSpeaker).map(([speaker, sentiment]) => (
-                  <div key={speaker} className="bg-gray-50 p-2 rounded">
-                    <span className="text-xs font-medium text-gray-500">{speaker}</span>
-                    <p className="text-sm font-medium capitalize">{sentiment as string}</p>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-medium text-gray-900 mb-2">Sentiment by Speaker</h4>
+              <div className="space-y-2">
+                {Object.entries(sentimentData.perSpeaker).map(([speaker, sentiment]) => (
+                  <div key={speaker} className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-gray-700">{speaker}:</div>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      String(sentiment).includes('positive') ? 'bg-green-100 text-green-800' :
+                      String(sentiment).includes('negative') ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {String(sentiment).charAt(0).toUpperCase() + String(sentiment).slice(1)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -213,17 +197,22 @@ const TranscriptViewerPage: React.FC = () => {
       
       case 'topics':
         return (
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="flex flex-wrap gap-2">
-              {(result.content as string[]).map((topic, index) => (
-                <span 
-                  key={index} 
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
-                >
-                  {topic}
-                </span>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2">
+            {(result.content as string[]).map((topic, index) => (
+              <span 
+                key={index} 
+                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
+              >
+                {topic}
+              </span>
+            ))}
+          </div>
+        );
+      
+      default:
+        return (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Unknown analysis type.</p>
           </div>
         );
     }
@@ -231,28 +220,30 @@ const TranscriptViewerPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 pointer-events-auto">
         {/* Transcript list */}
-        <div className="md:col-span-1">
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div className="md:col-span-1 pointer-events-auto">
+          <div className="bg-white shadow overflow-hidden sm:rounded-md pointer-events-auto">
+            <div className="px-4 py-5 sm:px-6 flex justify-between items-center pointer-events-auto">
               <h3 className="text-lg leading-6 font-medium text-gray-900">Your Transcripts</h3>
               <Link
                 to="/transcribe"
-                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 pointer-events-auto"
+                style={{ pointerEvents: 'auto' }}
               >
                 New Transcription
               </Link>
             </div>
-            <ul className="divide-y divide-gray-200 max-h-[70vh] overflow-y-auto">
+            <ul className="divide-y divide-gray-200 max-h-[70vh] overflow-y-auto pointer-events-auto">
               {transcripts.length > 0 ? (
                 transcripts.map((transcript) => (
-                  <li key={transcript.id}>
+                  <li key={transcript.id} className="pointer-events-auto">
                     <button
                       onClick={() => handleSelectTranscript(transcript)}
-                      className={`block w-full text-left hover:bg-gray-50 px-4 py-4 ${
+                      className={`block w-full text-left hover:bg-gray-50 px-4 py-4 pointer-events-auto ${
                         selectedTranscript?.id === transcript.id ? 'bg-indigo-50' : ''
                       }`}
+                      style={{ pointerEvents: 'auto' }}
                     >
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-medium text-indigo-600 truncate">{transcript.title}</p>
@@ -265,23 +256,15 @@ const TranscriptViewerPage: React.FC = () => {
                       <div className="mt-2 sm:flex sm:justify-between">
                         <div className="sm:flex">
                           <p className="flex items-center text-sm text-gray-500">
-                            <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                            </svg>
-                            {transcript.segments.length > 0 ? 
-                              `${new Set(transcript.segments.map(s => s.speaker)).size} speakers` : 
-                              'No speakers'
-                            }
+                            {transcript.segments.length} segments
                           </p>
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                          <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                           </svg>
                           <p>
-                            <time dateTime={transcript.createdAt.toString()}>
-                              {formatDate(transcript.createdAt)}
-                            </time>
+                            {formatDate(transcript.createdAt)}
                           </p>
                         </div>
                       </div>
@@ -289,7 +272,7 @@ const TranscriptViewerPage: React.FC = () => {
                   </li>
                 ))
               ) : (
-                <li className="px-4 py-6 text-center text-gray-500">
+                <li className="px-4 py-6 text-center text-gray-500 pointer-events-auto">
                   No transcripts found. Start a new transcription to create one.
                 </li>
               )}
@@ -298,123 +281,86 @@ const TranscriptViewerPage: React.FC = () => {
         </div>
 
         {/* Transcript details and AI analysis */}
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 pointer-events-auto">
           {selectedTranscript ? (
-            <div className="space-y-6">
+            <div className="space-y-6 pointer-events-auto">
               {/* Transcript details */}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
+              <div className="bg-white shadow overflow-hidden sm:rounded-lg pointer-events-auto">
+                <div className="px-4 py-5 sm:px-6 pointer-events-auto">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">{selectedTranscript.title}</h3>
                   <p className="mt-1 max-w-2xl text-sm text-gray-500">
                     {formatDate(selectedTranscript.createdAt)} • {formatTime(selectedTranscript.duration)}
                   </p>
                 </div>
-                <div className="border-t border-gray-200">
-                  <div className="px-4 py-5 sm:p-6">
-                    <div className="space-y-4">
-                      {selectedTranscript.segments.map((segment) => (
-                        <div key={segment.id} className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex items-center mb-2">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                              {segment.speaker}
-                            </span>
-                            <span className="ml-2 text-xs text-gray-500">
-                              {formatTime(segment.startTime)}
-                            </span>
-                          </div>
-                          <p className="text-gray-900">{segment.text}</p>
+                <div className="border-t border-gray-200 px-4 py-5 sm:p-0 pointer-events-auto">
+                  <dl className="sm:divide-y sm:divide-gray-200">
+                    <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                      <dt className="text-sm font-medium text-gray-500">Transcript</dt>
+                      <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        <div className="space-y-4">
+                          {selectedTranscript.segments.map((segment, index) => (
+                            <div key={index} className="bg-gray-50 p-3 rounded-md">
+                              <div className="flex items-center mb-1">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                  {segment.speaker}
+                                </span>
+                                <span className="ml-2 text-xs text-gray-500">
+                                  {formatTime(segment.startTime)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700">{segment.text}</p>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
                 </div>
               </div>
-
-              {/* AI analysis */}
-              <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                <div className="px-4 py-5 sm:px-6">
+              
+              {/* AI Analysis */}
+              <div className="bg-white shadow overflow-hidden sm:rounded-lg pointer-events-auto">
+                <div className="px-4 py-5 sm:px-6 flex justify-between items-center pointer-events-auto">
                   <h3 className="text-lg leading-6 font-medium text-gray-900">AI Analysis</h3>
-                  <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                    Insights generated from your transcript
-                  </p>
+                  <button
+                    onClick={handleAnalyze}
+                    disabled={isAnalyzing}
+                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                  </button>
                 </div>
-                <div className="border-t border-gray-200">
-                  {/* Tabs */}
-                  <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex" aria-label="Tabs">
-                      <button
-                        onClick={() => {
-                          setActiveAiTab('summary');
-                          if (!aiResults.find(r => r.type === 'summary')) {
-                            handleAnalyze('summary');
-                          }
-                        }}
-                        className={`${
-                          activeAiTab === 'summary'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        } whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm flex-1 text-center`}
-                      >
-                        Summary
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveAiTab('keyPoints');
-                          if (!aiResults.find(r => r.type === 'keyPoints')) {
-                            handleAnalyze('keyPoints');
-                          }
-                        }}
-                        className={`${
-                          activeAiTab === 'keyPoints'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        } whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm flex-1 text-center`}
-                      >
-                        Key Points
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveAiTab('sentiment');
-                          if (!aiResults.find(r => r.type === 'sentiment')) {
-                            handleAnalyze('sentiment');
-                          }
-                        }}
-                        className={`${
-                          activeAiTab === 'sentiment'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        } whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm flex-1 text-center`}
-                      >
-                        Sentiment
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveAiTab('topics');
-                          if (!aiResults.find(r => r.type === 'topics')) {
-                            handleAnalyze('topics');
-                          }
-                        }}
-                        className={`${
-                          activeAiTab === 'topics'
-                            ? 'border-indigo-500 text-indigo-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        } whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm flex-1 text-center`}
-                      >
-                        Topics
-                      </button>
+                
+                <div className="border-t border-gray-200 pointer-events-auto">
+                  <div className="px-4 py-3 bg-gray-50 pointer-events-auto">
+                    <nav className="flex space-x-4 pointer-events-auto">
+                      {['summary', 'keyPoints', 'sentiment', 'topics'].map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveAiTab(tab)}
+                          className={`px-3 py-2 text-sm font-medium rounded-md pointer-events-auto ${
+                            activeAiTab === tab
+                              ? 'bg-indigo-100 text-indigo-700'
+                              : 'text-gray-500 hover:text-gray-700'
+                          }`}
+                          style={{ pointerEvents: 'auto' }}
+                        >
+                          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                      ))}
                     </nav>
                   </div>
                   
-                  {/* Tab content */}
-                  <div className="px-4 py-5 sm:p-6">
+                  <div className="px-4 py-5 sm:p-6 pointer-events-auto">
                     {renderAiResultContent()}
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-              <div className="px-4 py-5 sm:p-6 text-center">
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg pointer-events-auto">
+              <div className="px-4 py-5 sm:p-6 text-center pointer-events-auto">
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
