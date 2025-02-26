@@ -29,6 +29,24 @@ interface AuthContextType {
 }
 ```
 
+### Properties
+
+#### isAuthenticated: boolean
+
+Indicates whether a user is currently authenticated.
+
+#### user: User | null
+
+The currently authenticated user, or null if no user is authenticated.
+
+#### loading: boolean
+
+Indicates whether an authentication operation is in progress.
+
+#### error: string | null
+
+The error message from the last failed authentication operation, or null if no error occurred.
+
 ### Methods
 
 #### login(email: string, password: string): Promise<void>
@@ -48,17 +66,17 @@ Authenticates a user with email and password.
 **Example:**
 ```typescript
 try {
-  await login('user@example.com', 'password123');
+  await auth.login('user@example.com', 'password123');
   // User is now authenticated
-} catch (err) {
+} catch (error) {
   // Handle authentication error
-  console.error('Login failed:', err);
+  console.error('Login failed:', error);
 }
 ```
 
 #### loginWithGoogle(): Promise<void>
 
-Authenticates a user with Google.
+Authenticates a user with Google (mock implementation).
 
 **Returns:**
 - A Promise that resolves when authentication is successful
@@ -69,11 +87,11 @@ Authenticates a user with Google.
 **Example:**
 ```typescript
 try {
-  await loginWithGoogle();
+  await auth.loginWithGoogle();
   // User is now authenticated
-} catch (err) {
+} catch (error) {
   // Handle authentication error
-  console.error('Google login failed:', err);
+  console.error('Google login failed:', error);
 }
 ```
 
@@ -95,11 +113,11 @@ Registers a new user.
 **Example:**
 ```typescript
 try {
-  await register('user@example.com', 'password123', 'John Doe');
+  await auth.register('user@example.com', 'password123', 'John Doe');
   // User is now registered and authenticated
-} catch (err) {
+} catch (error) {
   // Handle registration error
-  console.error('Registration failed:', err);
+  console.error('Registration failed:', error);
 }
 ```
 
@@ -109,27 +127,9 @@ Logs out the current user.
 
 **Example:**
 ```typescript
-logout();
+auth.logout();
 // User is now logged out
 ```
-
-### Properties
-
-#### isAuthenticated: boolean
-
-Indicates whether a user is currently authenticated.
-
-#### user: User | null
-
-The currently authenticated user, or null if no user is authenticated.
-
-#### loading: boolean
-
-Indicates whether an authentication operation is in progress.
-
-#### error: string | null
-
-The error message from the last failed authentication operation, or null if no error occurred.
 
 ## Transcription API
 
@@ -388,6 +388,12 @@ Analyzes the sentiment of the transcript.
 try {
   const result = await aiService.analyzeSentiment(transcript);
   // Use result.content for display
+  
+  // The sentiment analysis typically includes:
+  // - Overall sentiment score
+  // - Per-speaker sentiment breakdown
+  // - Emotional tone identification
+  // - Key emotional moments in the transcript
 } catch (error) {
   // Handle error
   console.error('Error analyzing sentiment:', error);
@@ -428,6 +434,14 @@ interface User {
 }
 ```
 
+Represents a user account in the application.
+
+**Properties:**
+- `id`: Unique identifier for the user
+- `name`: Display name of the user
+- `email`: Email address of the user
+- `avatar`: Optional URL to the user's profile image
+
 ### TranscriptionSegment
 
 ```typescript
@@ -441,6 +455,16 @@ interface TranscriptionSegment {
 }
 ```
 
+Represents a segment of a transcript, typically spoken by a single speaker.
+
+**Properties:**
+- `id`: Unique identifier for the segment
+- `speaker`: Identifier for the speaker (e.g., "Speaker 1")
+- `text`: The transcribed text for this segment
+- `startTime`: The start time of the segment in milliseconds
+- `endTime`: The end time of the segment in milliseconds
+- `confidence`: A value between 0 and 1 indicating the confidence level of the transcription
+
 ### Transcript
 
 ```typescript
@@ -453,6 +477,15 @@ interface Transcript {
 }
 ```
 
+Represents a complete transcript of a recording.
+
+**Properties:**
+- `id`: Unique identifier for the transcript
+- `title`: User-provided title for the transcript
+- `segments`: Array of transcription segments
+- `createdAt`: Date when the transcript was created
+- `duration`: Duration of the recording in milliseconds
+
 ### AIAnalysisResult
 
 ```typescript
@@ -461,3 +494,17 @@ interface AIAnalysisResult {
   content: string | string[] | Record<string, any>;
   timestamp: Date;
 }
+```
+
+Represents the result of an AI analysis operation.
+
+**Properties:**
+- `type`: The type of analysis performed
+- `content`: The analysis result, which can be a string, array of strings, or a complex object
+- `timestamp`: When the analysis was performed
+
+**Content by Type:**
+- `summary`: A string containing the summary text
+- `keyPoints`: An array of strings, each representing a key point
+- `sentiment`: An object containing sentiment scores and analysis
+- `topics`: An array of strings or an object with topic categories and items

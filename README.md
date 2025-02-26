@@ -20,6 +20,7 @@ Transcription App is a React-based web application that allows users to record a
 - Automatic speaker diarization
 - Start/stop recording functionality
 - Transcript saving with custom titles
+- Audio visualization during recording
 
 ### Transcript Management
 - View all saved transcripts
@@ -36,12 +37,14 @@ Transcription App is a React-based web application that allows users to record a
 - Clean, responsive design using Tailwind CSS
 - User dashboard with statistics and recent transcripts
 - Intuitive navigation between different sections
+- Audio visualization for recording feedback
 
 ## Technologies Used
 
 - **Frontend**: React, TypeScript, React Router
 - **Styling**: Tailwind CSS
 - **Speech Recognition**: Web Speech API
+- **Audio Processing**: Web Audio API for visualization
 - **State Management**: React Context API
 - **Storage**: localStorage
 - **Authentication**: Custom mock implementation (for demo)
@@ -121,7 +124,7 @@ transcription-app/
 
 ## Browser Compatibility
 
-The application uses the Web Speech API, which has varying levels of support across browsers:
+The application uses the Web Speech API and Web Audio API, which have varying levels of support across browsers:
 - Chrome: Full support
 - Edge: Full support
 - Firefox: Partial support
@@ -136,6 +139,7 @@ For the best experience, use Chrome or Edge.
 - **Storage**: Transcripts are stored in localStorage, which has limited capacity and is cleared when browser data is cleared
 - **Authentication**: The current implementation uses mock authentication and is not secure for production use
 - **AI Analysis**: The current implementation uses mock data and does not perform actual AI analysis
+- **Error Handling**: Some error states may not be properly communicated to the user
 
 ## Future Improvements
 
@@ -146,6 +150,7 @@ For the best experience, use Chrome or Edge.
 - Implement real-time collaboration features
 - Add support for multiple languages
 - Improve accessibility features
+- Enhance error handling and recovery mechanisms
 
 ## License
 
@@ -156,4 +161,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Create React App](https://create-react-app.dev/) for the project setup
 - [Tailwind CSS](https://tailwindcss.com/) for the styling framework
 - [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) for speech recognition capabilities
+- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) for audio visualization
 - [React Router](https://reactrouter.com/) for routing
