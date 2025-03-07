@@ -1,6 +1,6 @@
-# Contributing to Transcription App
+# Contributing to Auralytics
 
-Thank you for your interest in contributing to the Transcription App! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to the Auralytics! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -310,4 +310,4 @@ When requesting a feature, please include:
 - Any alternatives you've considered
 - Additional context or screenshots
 
-Thank you for contributing to the Transcription App!
+Thank you for contributing to the Auralytics!

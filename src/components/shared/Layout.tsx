@@ -72,7 +72,7 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <p className="text-sm text-neutral-500">
-              © {new Date().getFullYear()} Transcription App
+              © {new Date().getFullYear()} Auralytics
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-neutral-400 hover:text-neutral-500 transition-colors">

@@ -1,6 +1,6 @@
-# Transcription App - Technical Documentation
+# Auralytics - Technical Documentation
 
-This document provides detailed technical information about the Transcription App's architecture, components, and implementation details.
+This document provides detailed technical information about the Auralytics's architecture, components, and implementation details.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ This document provides detailed technical information about the Transcription Ap
 
 ## Architecture Overview
 
-The Transcription App follows a component-based architecture using React and TypeScript. The application is structured around several key systems:
+The Auralytics follows a component-based architecture using React and TypeScript. The application is structured around several key systems:
 
 - **Authentication**: Handles user registration, login, and session management
 - **Transcription**: Manages speech recognition and speaker diarization

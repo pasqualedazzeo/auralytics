@@ -1,12 +1,12 @@
-# Transcription App
+# Auralytics
 
 A modern web application for live speech transcription with speaker diarization and AI-powered analysis.
 
-![Transcription App Screenshot](https://via.placeholder.com/800x450.png?text=Transcription+App)
+![Auralytics Screenshot](https://via.placeholder.com/800x450.png?text=Transcription+App)
 
 ## Overview
 
-Transcription App is a React-based web application that allows users to record and transcribe conversations in real-time. The application features speaker diarization to distinguish between different speakers, and provides AI-powered analysis tools to extract insights from transcripts.
+Auralytics is a React-based web application that allows users to record and transcribe conversations in real-time. The application features speaker diarization to distinguish between different speakers, and provides AI-powered analysis tools to extract insights from transcripts.
 
 ## Features
 

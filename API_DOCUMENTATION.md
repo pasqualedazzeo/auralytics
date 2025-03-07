@@ -1,6 +1,6 @@
-# Transcription App - API Documentation
+# Auralytics - API Documentation
 
-This document provides detailed information about the APIs and interfaces used in the Transcription App.
+This document provides detailed information about the APIs and interfaces used in the Auralytics.
 
 ## Table of Contents
 

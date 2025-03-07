@@ -1,6 +1,6 @@
-# Transcription App - User Guide
+# Auralytics - User Guide
 
-Welcome to the Transcription App! This guide will help you understand how to use the application to record, transcribe, and analyze conversations.
+Welcome to the Auralytics! This guide will help you understand how to use the application to record, transcribe, and analyze conversations.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Welcome to the Transcription App! This guide will help you understand how to use
 
 ## Getting Started
 
-The Transcription App allows you to:
+The Auralytics allows you to:
 
 - Record and transcribe conversations in real-time
 - Automatically identify different speakers
@@ -26,7 +26,7 @@ The Transcription App allows you to:
 
 ## Creating an Account
 
-To use the Transcription App, you'll need to create an account:
+To use the Auralytics, you'll need to create an account:
 
 1. Open the application in your web browser
 2. Click on the "Sign up" link at the bottom of the login page
@@ -102,7 +102,7 @@ Each transcript includes:
 
 ## AI Analysis Features
 
-The Transcription App includes AI tools to help you analyze your transcripts:
+The Auralytics includes AI tools to help you analyze your transcripts:
 
 1. Open a transcript from the Transcripts page
 2. In the AI Analysis section, you'll see four tabs:
