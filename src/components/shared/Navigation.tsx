@@ -76,15 +76,12 @@ const Navigation: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <div className="flex items-center space-x-3 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm border border-neutral-100">
-                    {user.avatar ? (
-                      <img className="h-8 w-8 rounded-full ring-2 ring-white" src={user.avatar} alt="" />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center ring-2 ring-white">
-                        <span className="text-white font-medium text-sm">
-                          {user.name ? user.name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
+                    <img 
+                      className="h-8 w-8 rounded-full ring-2 ring-white" 
+                      alt="User" 
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E" 
+                      data-component-name="Navigation" 
+                    />
                     <span className="text-sm font-medium text-neutral-700">
                       {user.name || user.email}
                     </span>
@@ -148,15 +145,12 @@ const Navigation: React.FC = () => {
           <div className="pt-4 pb-3 border-t border-neutral-200 px-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                {user.avatar ? (
-                  <img className="h-10 w-10 rounded-full" src={user.avatar} alt="" />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center">
-                    <span className="text-white font-medium text-sm">
-                      {user.name ? user.name.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+                <img 
+                  className="h-10 w-10 rounded-full" 
+                  alt="User" 
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E" 
+                  data-component-name="Navigation" 
+                />
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium text-neutral-800">{user.name || user.email}</div>

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 // Define the shape of our authentication context
 interface AuthContextType {
@@ -34,10 +34,29 @@ const AuthContext = createContext<AuthContextType>({
 
 // Create a provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  // Initialize state from localStorage if available
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const storedAuth = localStorage.getItem('isAuthenticated');
+    return storedAuth === 'true';
+  });
+  
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Persist authentication state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('isAuthenticated', isAuthenticated.toString());
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [isAuthenticated, user]);
 
   // Mock login function
   const login = async (email: string, password: string) => {
@@ -129,6 +148,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user');
   };
 
   const value = {

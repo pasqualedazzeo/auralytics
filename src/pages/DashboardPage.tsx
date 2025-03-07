@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from '../components/shared/Layout';
 import { useAuth } from '../contexts/AuthContext';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Mock data for dashboard
   const stats = [
@@ -107,7 +112,7 @@ const DashboardPage: React.FC = () => {
       <div className="mt-8 flex justify-center">
         <a
           href="/transcribe"
-          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 relative z-10"
         >
           Start New Transcription
         </a>
