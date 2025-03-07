@@ -49,19 +49,64 @@ module.exports = {
       },
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+        'elevated': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+        'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'glow': '0 0 15px rgba(14, 165, 233, 0.3)',
+        'glow-secondary': '0 0 15px rgba(139, 92, 246, 0.3)',
       },
       borderRadius: {
         'xl': '1rem',
         '2xl': '1.5rem',
+        '3xl': '2rem',
+        '4xl': '2.5rem',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'slide-down': 'slideDown 0.5s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-slow': 'bounce 3s infinite',
+        'spin-slow': 'spin 3s linear infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+      backgroundImage: {
+        'grid-neutral-700': 'linear-gradient(to right, #334155 1px, transparent 1px), linear-gradient(to bottom, #334155 1px, transparent 1px)',
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      },
+      transitionDuration: {
+        '400': '400ms',
+      },
+      transitionTimingFunction: {
+        'bounce-in-out': 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
       },
     },
   },
   variants: {
     extend: {
-      opacity: ['disabled'],
-      cursor: ['disabled'],
-      backgroundColor: ['active', 'disabled'],
-      textColor: ['active', 'disabled'],
+      opacity: ['disabled', 'group-hover', 'group-focus'],
+      cursor: ['disabled', 'hover'],
+      backgroundColor: ['active', 'disabled', 'group-hover'],
+      textColor: ['active', 'disabled', 'group-hover'],
+      scale: ['group-hover', 'hover', 'active'],
+      transform: ['group-hover', 'hover', 'active'],
+      translate: ['group-hover', 'hover', 'active'],
+      borderWidth: ['hover', 'focus'],
+      ringWidth: ['hover', 'active', 'focus'],
+      ringColor: ['hover', 'active', 'focus'],
     },
   },
   plugins: [

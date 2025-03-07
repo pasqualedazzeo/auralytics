@@ -48,7 +48,7 @@ const Navigation: React.FC = () => {
                 </div>
               </div>
               <span className="ml-3 text-lg font-medium bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-                Transcribe
+                Auralytics
               </span>
             </Link>
             
