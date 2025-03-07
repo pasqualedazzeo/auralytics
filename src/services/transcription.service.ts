@@ -138,10 +138,23 @@ export class TranscriptionService {
   }
   
   // Request microphone access
-  private async requestMicrophoneAccess(): Promise<MediaStream> {
+  private async requestMicrophoneAccess(captureSystemAudio: boolean = false): Promise<MediaStream> {
     try {
       console.log('Requesting microphone access...');
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const constraints: MediaStreamConstraints = { 
+        audio: captureSystemAudio 
+          ? {
+              // System audio capture option
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false,
+              // These constraints help for system audio capture on some browsers
+              // but actual system audio capture depends on browser implementation
+            } 
+          : true 
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('Microphone access granted, setting up audio context...');
       
       // Set up audio context and analyzer with type assertion
@@ -230,7 +243,7 @@ export class TranscriptionService {
   private handleRecognitionResult(event: SpeechRecognitionEvent) {
     const now = Date.now() / 1000;
     let interimTranscript = '';
-    let finalText = '';
+    // Removed unused variable assignment
 
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const result = event.results[i];
@@ -238,7 +251,6 @@ export class TranscriptionService {
 
       if (result.isFinal) {
         console.log('Final transcript:', transcript);
-        finalText = transcript;
         
         const pauseDuration = this.lastResultTimestamp ? now - this.lastResultTimestamp : 0;
         this.currentSpeaker = assignSpeaker(this.currentSpeaker, pauseDuration);
@@ -371,9 +383,12 @@ export class TranscriptionService {
   }
 
   // Start transcription
-  public async start(onUpdate: (segments: TranscriptionSegment[]) => void): Promise<boolean> {
+  public async start(onUpdate: (segments: TranscriptionSegment[]) => void, options: { 
+    language?: 'en-US' | 'it-IT',
+    captureSystemAudio?: boolean 
+  } = {}): Promise<boolean> {
     try {
-      console.log('Starting transcription service...');
+      console.log('Starting transcription service...', options);
       if (this.isListening) {
         console.log('Already listening, stopping current session first');
         this.stop();
@@ -390,7 +405,7 @@ export class TranscriptionService {
       this.setStatus(TranscriptionStatus.REQUESTING_PERMISSION);
 
       console.log('Requesting microphone access...');
-      await this.requestMicrophoneAccess();
+      await this.requestMicrophoneAccess(options.captureSystemAudio);
 
       console.log('Setting up transcription...');
       this.onTranscriptUpdate = onUpdate;
@@ -404,6 +419,10 @@ export class TranscriptionService {
 
       console.log('Starting recognition...');
       if (this.recognition) {
+        // Set recognition language if provided
+        if (options.language) {
+          this.recognition.lang = options.language;
+        }
         this.recognition.start();
         return true;
       } else {

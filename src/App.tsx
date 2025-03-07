@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
+import './styles/darkMode.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { PreferencesProvider } from './contexts/PreferencesContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -22,7 +24,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 function AppRoutes() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-neutral-900">
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -65,7 +67,9 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <AppRoutes />
+      <PreferencesProvider>
+        <AppRoutes />
+      </PreferencesProvider>
     </AuthProvider>
   );
 }

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, logout } = useAuth();
+  const { preferences, toggleDarkMode, setLanguage, toggleCaptureSystemAudio } = usePreferences();
   const location = useLocation();
 
   // Handle scroll effect for transparent to solid navbar
@@ -72,6 +74,58 @@ const Navigation: React.FC = () => {
           
           {/* Desktop user menu */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            {/* Preferences controls */}
+            <div className="flex items-center space-x-4 mr-4">
+              {/* Dark mode toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-full hover:bg-neutral-100 transition-colors"
+                title="Toggle dark mode"
+              >
+                {preferences.darkMode ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Language selector */}
+              <div className="relative">
+                <select
+                  value={preferences.language}
+                  onChange={(e) => setLanguage(e.target.value as 'en-US' | 'it-IT')}
+                  className="appearance-none bg-transparent border border-neutral-200 rounded-md py-1 pl-2 pr-8 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                >
+                  <option value="en-US">English</option>
+                  <option value="it-IT">Italiano</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-neutral-500">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* System audio toggle */}
+              <button
+                onClick={toggleCaptureSystemAudio}
+                className={`p-2 rounded-full transition-colors ${
+                  preferences.captureSystemAudio
+                    ? 'bg-primary-100 text-primary-600'
+                    : 'text-neutral-500 hover:bg-neutral-100'
+                }`}
+                title="Toggle system audio capture"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </button>
+            </div>
+
             {user && (
               <div className="flex items-center space-x-4">
                 <div className="relative">

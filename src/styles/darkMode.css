@@ -1,0 +1,254 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Improved dark mode styling */
+  .dark {
+    /* Updated primary color - more vibrant blue */
+    --color-primary-50: #e6f5ff;
+    --color-primary-100: #cceaff;
+    --color-primary-200: #99d5ff;
+    --color-primary-300: #66bfff;
+    --color-primary-400: #33aaff;
+    --color-primary-500: #0095ff;
+    --color-primary-600: #0077cc;
+    --color-primary-700: #005999;
+    --color-primary-800: #003c66;
+    --color-primary-900: #001e33;
+    --color-primary-950: #000f1a;
+
+    /* Updated secondary color - rich purple */
+    --color-secondary-50: #f4f1ff;
+    --color-secondary-100: #ebe4ff;
+    --color-secondary-200: #d7c8ff;
+    --color-secondary-300: #c4adff;
+    --color-secondary-400: #b092ff;
+    --color-secondary-500: #9c77ff;
+    --color-secondary-600: #7d5fcc;
+    --color-secondary-700: #5e4799;
+    --color-secondary-800: #3f2f66;
+    --color-secondary-900: #1f1833;
+    --color-secondary-950: #100c1a;
+
+    /* Improved neutral colors for better contrast */
+    --color-neutral-50: #f9fafb;
+    --color-neutral-100: #f3f4f6;
+    --color-neutral-200: #e5e7eb;
+    --color-neutral-300: #d1d5db;
+    --color-neutral-400: #9ca3af;
+    --color-neutral-500: #6b7280;
+    --color-neutral-600: #4b5563;
+    --color-neutral-700: #374151;
+    --color-neutral-800: #1f2937;
+    --color-neutral-900: #111827;
+    --color-neutral-950: #030712;
+
+    /* Main dark theme background color - slightly lighter than pure black for better contrast */
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1e1e1e;
+    --dark-bg-elevated: #262626;
+    --dark-border: #333333;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #b0b0b0;
+    --dark-text-muted: #7a7a7a;
+
+    /* Color application */
+    background-color: var(--dark-bg-primary);
+    color: var(--dark-text-primary);
+    
+    /* Smooth transition for all color changes */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* General Background Colors */
+  .dark .bg-white {
+    background-color: var(--dark-bg-secondary);
+  }
+
+  .dark .bg-neutral-50 {
+    background-color: var(--dark-bg-secondary);
+  }
+
+  .dark .bg-neutral-100 {
+    background-color: var(--dark-bg-secondary);
+  }
+
+  .dark .bg-neutral-200 {
+    background-color: var(--dark-bg-elevated);
+  }
+
+  /* Card styling */
+  .dark .card, 
+  .dark .bg-white, 
+  .dark div[class*="shadow"] {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Input field styling */
+  .dark input,
+  .dark select,
+  .dark textarea {
+    background-color: var(--dark-bg-elevated);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+  }
+
+  .dark input:focus,
+  .dark select:focus,
+  .dark textarea:focus {
+    border-color: var(--color-primary-600);
+    box-shadow: 0 0 0 1px var(--color-primary-600);
+  }
+
+  .dark input::placeholder {
+    color: var(--dark-text-muted);
+  }
+
+  /* Button styling */
+  .dark button,
+  .dark [type='button'],
+  .dark [type='submit'] {
+    border-color: var(--dark-border);
+  }
+
+  .dark button:hover,
+  .dark [type='button']:hover,
+  .dark [type='submit']:hover {
+    filter: brightness(1.1);
+  }
+
+  /* Primary button specifically */
+  .dark .btn-primary,
+  .dark button[class*="primary"] {
+    background-color: var(--color-primary-600);
+    color: white;
+  }
+
+  /* Secondary button */
+  .dark .btn-secondary,
+  .dark button[class*="secondary"] {
+    background-color: var(--color-secondary-600);
+    color: white;
+  }
+
+  /* Text Colors */
+  .dark .text-neutral-500 {
+    color: var(--dark-text-secondary);
+  }
+
+  .dark .text-neutral-600,
+  .dark .text-neutral-700 {
+    color: var(--dark-text-secondary);
+  }
+
+  .dark .text-neutral-800,
+  .dark .text-neutral-900 {
+    color: var(--dark-text-primary);
+  }
+
+  /* Border Colors */
+  .dark .border,
+  .dark .border-neutral-200,
+  .dark .border-neutral-300 {
+    border-color: var(--dark-border);
+  }
+
+  /* Table styling */
+  .dark table {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-text-primary);
+  }
+
+  .dark tr:nth-child(even) {
+    background-color: var(--dark-bg-elevated);
+  }
+
+  .dark thead {
+    background-color: var(--dark-bg-elevated);
+    color: var(--dark-text-primary);
+  }
+
+  /* Links */
+  .dark a {
+    color: var(--color-primary-400);
+  }
+
+  .dark a:hover {
+    color: var(--color-primary-300);
+    text-decoration: underline;
+  }
+
+  /* Custom scrollbar */
+  .dark ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: var(--dark-bg-primary);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--dark-bg-elevated);
+    border-radius: 5px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-border);
+  }
+
+  /* Modals & Dialogs */
+  .dark .modal,
+  .dark .dialog,
+  .dark [role="dialog"] {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Navbars and navigation */
+  .dark nav,
+  .dark header,
+  .dark .navbar {
+    background-color: var(--dark-bg-secondary);
+    border-bottom-color: var(--dark-border);
+  }
+
+  .dark .sidebar {
+    background-color: var(--dark-bg-secondary);
+    border-right-color: var(--dark-border);
+  }
+
+  /* Selection */
+  .dark ::selection {
+    background-color: var(--color-primary-600);
+    color: white;
+  }
+
+  /* Tooltips */
+  .dark [role="tooltip"],
+  .dark .tooltip {
+    background-color: var(--dark-bg-elevated);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border);
+  }
+
+  /* Form feedback */
+  .dark .text-red-500,
+  .dark .text-danger {
+    color: #ff6b6b;
+  }
+
+  .dark .text-green-500,
+  .dark .text-success {
+    color: #51cf66;
+  }
+
+  /* Badges */
+  .dark .badge {
+    background-color: var(--dark-bg-elevated);
+  }
+}

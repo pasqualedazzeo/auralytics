@@ -6,6 +6,7 @@ import {
   TranscriptionError,
   Transcript
 } from '../services/transcription.service';
+import { usePreferences } from '../contexts/PreferencesContext';
 import { v4 as uuidv4 } from 'uuid';
 
 export const useTranscription = () => {
@@ -14,6 +15,7 @@ export const useTranscription = () => {
   const [error, setError] = useState<TranscriptionError | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const { preferences } = usePreferences();
   
   // Use refs to maintain instance across renders
   const transcriptionServiceRef = useRef<TranscriptionService | null>(null);
@@ -105,9 +107,15 @@ export const useTranscription = () => {
       };
       
       // Start the actual transcription service
-      const success = await transcriptionServiceRef.current.start((segments) => {
-        setTranscript(segments);
-      });
+      const success = await transcriptionServiceRef.current.start(
+        (segments) => {
+          setTranscript(segments);
+        },
+        {
+          language: preferences.language,
+          captureSystemAudio: preferences.captureSystemAudio
+        }
+      );
       
       if (success) {
         setIsRecording(true);
@@ -124,7 +132,7 @@ export const useTranscription = () => {
         message: 'Failed to access microphone. Please check permissions.'
       });
     }
-  }, [startTimer, ensureAudioVisualization]);
+  }, [startTimer, ensureAudioVisualization, preferences.language, preferences.captureSystemAudio]);
   
   // Stop recording
   const stopRecording = useCallback(() => {
